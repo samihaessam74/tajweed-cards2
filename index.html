@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>بطاقات المد والقصر</title>
+<style>
+:root{--bg:#fdf0f4;--ink:#4a2836;--mute:#94687b;--card:#fffafb;--line:#f3d0dc;--ok:#2f6b4c;--okbg:#d6ecdc;--no:#9b3f5f;--nobg:#fbcddb;--gx:#35a36a;--rx:#e0475b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241520;--ink:#f7e6ee;--mute:#c9a2b4;--card:#331f2c;--line:#4d3242;--ok:#a6e3c0;--okbg:#21473a;--no:#ffc2d6;--nobg:#5c2a40}}
+:root[data-theme="dark"]{--bg:#241520;--ink:#f7e6ee;--mute:#c9a2b4;--card:#331f2c;--line:#4d3242;--ok:#a6e3c0;--okbg:#21473a;--no:#ffc2d6;--nobg:#5c2a40}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:"Amiri","Noto Naskh Arabic","Traditional Arabic","Geeza Pro",serif;display:flex;flex-direction:column;align-items:center;padding:18px 16px 24px;overflow-x:hidden}
+h1{font-size:1.25rem;margin:4px 0 2px;text-align:center}
+.sub{color:var(--mute);font-size:.95rem;margin:0 0 14px;text-align:center}
+.bar{width:min(100%,380px);height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%;width:0;background:var(--no);opacity:.7;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.count{color:var(--mute);font-size:.95rem;margin-bottom:14px}
+.stage{--p:0;position:relative;width:min(100%,380px);height:min(58vh,410px);perspective:1200px;margin-bottom:18px}
+.stage::before{content:"";position:absolute;inset:0;border-radius:22px;background:var(--line);opacity:.7;transform:translate(6px,10px) scale(calc(.94 + .06*var(--p)));transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.card{position:absolute;inset:0;touch-action:pan-y;cursor:grab;will-change:transform;transition:transform .22s ease-out}
+.card:focus-visible{outline:3px solid var(--no);outline-offset:4px;border-radius:22px}
+.card.drag{transition:none;cursor:grabbing}
+.card.fly{transition:transform .2s ease-out,opacity .2s}
+.inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .3s ease}
+.card.flipped .inner{transform:rotateY(180deg)}
+.card.reset,.card.reset *{transition:none!important}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;border:1px solid var(--line);background:color-mix(in srgb,var(--tint) 45%,var(--card));padding:26px 20px 30px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:auto}
+.back{transform:rotateY(180deg)}
+.lab{position:absolute;top:14px;inset-inline-start:18px;color:var(--mute);font-size:.9rem}
+.q{font-size:1.6rem;line-height:1.9}
+.a{font-size:1.7rem;line-height:1.7;font-weight:700}
+.ex{font-size:1.1rem;line-height:1.9;margin-top:12px}
+.hint{position:absolute;bottom:12px;color:var(--mute);font-size:.9rem}
+.badge{position:absolute;top:16px;padding:4px 14px;border-radius:999px;font-weight:700;font-size:1.05rem;opacity:0;pointer-events:none;z-index:2}
+.b-ok{inset-inline-end:16px;background:var(--okbg);color:var(--ok)}
+.b-no{inset-inline-start:16px;background:var(--nobg);color:var(--no)}
+.btns{display:flex;gap:12px;width:min(100%,380px)}
+button{font:inherit;font-size:1.1rem;border:0;border-radius:14px;padding:12px 10px;cursor:pointer;flex:1;color:var(--ink);transition:transform .15s}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.no{background:var(--nobg);color:var(--no)}
+.ok{background:var(--okbg);color:var(--ok)}
+.flip{background:var(--line)}
+.end{width:min(100%,380px);text-align:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 20px}
+.end h2{margin:0 0 8px;font-size:1.5rem}
+.end p{font-size:1.15rem;line-height:1.9;margin:6px 0 18px}
+.end .btns{flex-direction:column;width:100%}
+[hidden]{display:none!important}
+.under{position:absolute;inset:0;border-radius:22px;pointer-events:none;opacity:0;display:flex;align-items:center;direction:ltr;padding:0 24px;font-size:1.5rem;font-weight:700;color:#fff;transition:opacity .12s}
+.badge{display:none}
+#game{display:flex;flex-direction:column;align-items:center;width:100%}
+label{display:block;text-align:start;margin:10px 0;color:var(--mute)}
+input{width:100%;font:inherit;font-size:1.1rem;padding:10px 12px;margin-top:4px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+input:focus-visible{outline:3px solid var(--no);outline-offset:1px}
+#go{width:100%;margin-top:10px}
+.rid{font-size:1.05rem;color:var(--mute);margin-bottom:12px;word-break:break-all}
+.end .st{font-size:.95rem;color:var(--mute);margin:10px 0}
+.end .btns+.btns{margin-top:12px}
+@media (prefers-reduced-motion:reduce){.card,.inner,.bar i,.stage::before{transition:none}}
+</style>
+</head>
+<body>
+<h1>المد والقصر</h1>
+<p class="sub">اضغط على البطاقة لتقلبها، ثم اسحبها يمينًا إن عرفتها ويسارًا لتعيدها</p>
+<div class="end" id="start">
+  <h2>قبل أن نبدأ</h2>
+  <label>الاسم<input id="nm" autocomplete="name"></label>
+  <label>اسم المعلمة<input id="tc"></label>
+  <p class="st" id="err"></p>
+  <button class="ok" id="go">ابدأ</button>
+</div>
+<div id="game" hidden>
+<div class="bar"><i id="bar"></i></div>
+<div class="count" id="count"></div>
+<div class="stage" id="stage">
+  <div class="under" id="wash"></div>
+  <div class="card" id="card" tabindex="0" aria-label="بطاقة، اضغط لقلبها">
+    <span class="badge b-ok" id="bok">عرفتها</span>
+    <span class="badge b-no" id="bno">أعيدها</span>
+    <div class="inner">
+      <div class="face"><span class="lab">السؤال</span><div class="q" id="q"></div><span class="hint">اضغط لإظهار الجواب</span></div>
+      <div class="face back"><span class="lab">الجواب</span><div class="a" id="a"></div><div class="ex" id="ex"></div></div>
+    </div>
+  </div>
+</div>
+<div class="btns" id="btns">
+  <button class="no" id="bn">أعيدها</button>
+  <button class="flip" id="bf">اقلب</button>
+  <button class="ok" id="bk">عرفتها</button>
+</div>
+</div>
+<div class="end" id="end" hidden>
+  <h2>انتهت الجولة</h2>
+  <p id="sum"></p>
+  <div class="btns">
+    <button class="no" id="rv">راجع ما أعدتَه</button>
+    <button class="flip" id="rs">ابدأ من جديد</button>
+  </div>
+</div>
+<script>
+const D=[
+{t:"#fbc8d8",q:"ما أصل باب المد في السنة؟",a:"قول أنس في قراءة النبي ﷺ: «كان يمدّ مدًّا»",ex:"رواه البخاري، وفي رواية النسائي: «كان يمدّ صوته مدًّا». ولما قرأ رجل ﴿لِلْفُقَرَاءِ﴾ بلا مد، قال ابن مسعود: «ما هكذا أقرأنيها رسول الله ﷺ» ثم قرأها ومدّها."},
+{t:"#fbc8d8",q:"ما تعريف المد؟",a:"لغةً: الزيادة. واصطلاحًا: إطالة الصوت بحرف المد أو اللين عند وجود سبب",ex:"ومن الأول ﴿وَيُمْدِدْكُمْ بِأَمْوَالٍ وَبَنِينَ﴾ [نوح: 12] أي يزدكم."},
+{t:"#fbc8d8",q:"ما القصر؟",a:"عكس المد: إثبات حرف المد بلا زيادة عن حركتين",ex:"ولغةً: الحبس والمنع، ومنه ﴿حُورٌ مَقْصُورَاتٌ فِي الْخِيَامِ﴾ [الرحمن: 72] أي محبوسات فيها."},
+{t:"#fbc8d8",q:"ما حروف المد؟",a:"الألف والواو والياء",ex:"شرطها: الألف مفتوح ما قبلها، والواو مضموم ما قبلها، والياء مكسور ما قبلها."},
+{t:"#fbc8d8",q:"ما الفرق بين حرف المد وحرف اللين؟",a:"كل حرف مد حرف لين، وليس كل حرف لين حرف مد",ex:"إذا فُتح ما قبل الواو أو الياء فهما حرف لين لا حرف مد."},
+{t:"#f9d6e3",q:"ما المد الطبيعي وما مقداره؟",a:"حركتان، وحكمه الوجوب",ex:"لا يسبقه همز ولا يليه همز أو سكون، مثل: ﴿نَاصِيَةٍ﴾. والحركتان ميزان مرن يتناسب مع سرعة القراءة، ويؤخذ بالتلقي."},
+{t:"#f9d6e3",q:"لماذا سُمّي المد الأصلي أصليًا وطبيعيًا؟",a:"أصلي لثبوت مقداره على حالة واحدة، وطبيعي لأنه بطبيعة النطق السليم",ex:"فهو أصل لغيره من المدود، وصاحب الطبيعة السليمة لا يزيده ولا ينقصه عن حركتين."},
+{t:"#f9d6e3",q:"ما شرط المد الطبيعي؟",a:"ألا يقع قبله همز، ولا يقع بعده همز أو سكون",ex:"وهو الذي لا تقوم ذات الحرف إلا به، ولا يستقيم معنى الكلمة إلا به."},
+{t:"#f9d6e3",q:"ما أنواع المد الطبيعي الثلاثة؟",a:"ثابت وصلًا ووقفًا، وثابت وقفًا لا وصلًا، وثابت وصلًا لا وقفًا",ex:"الأول مثل ﴿نَاصِيَةٍ﴾ ﴿مَالِكِ﴾. والثاني مثل مد العوض. والثالث مثل صلة هاء الضمير، وكذلك ما يصير عارضًا للسكون وقفًا مثل ﴿الْعَالَمِينَ﴾."},
+{t:"#f9d6e3",q:"ما مد العوض؟",a:"الألف المبدلة من التنوين المنصوب، وتثبت وقفًا لا وصلًا",ex:"مثل ﴿سَدِيدًا﴾ [النساء: 9]، سُمّي بذلك لأننا نعوّض عن التنوين بالمد. ومن هذا الباب الألف التي عليها سكون مستطيل مثل ﴿الظُّنُونَا﴾."},
+{t:"#f9d6e3",q:"ما مد الصلة الصغرى؟",a:"صلة هاء الضمير بواو أو ياء، وتثبت وصلًا لا وقفًا",ex:"مثل ﴿إِنَّ رَبَّهُ كَانَ بِهِ بَصِيرًا﴾ [الانشقاق: 15]، ومقداره حركتان."},
+{t:"#f9d6e3",q:"ما المد الفرعي؟",a:"زيادة على مقدار المد الطبيعي بسبب الهمز أو السكون",ex:"وتقوم ذات الحرف بدونه، وعلامته في المصحف (~)."},
+{t:"#f6cde6",q:"ما أقسام المد الفرعي؟",a:"بسبب الهمز، وبسبب السكون",ex:"الهمز: المتصل، والمنفصل (ويلحق به الصلة الكبرى)، والبدل. السكون: العارض للسكون (ويلحق به مد اللين)، واللازم."},
+{t:"#f6cde6",q:"ما أحكام المد الفرعي؟",a:"وجوب، وجواز، ولزوم",ex:"الوجوب للمتصل، والجواز للمنفصل والعارض للسكون والبدل، واللزوم لللازم."},
+{t:"#ffd9d6",q:"ما المد المتصل؟",a:"همز بعد حرف المد في كلمة واحدة",ex:"حكمه الوجوب، مثل ﴿جَاءَكُمْ﴾ ﴿يَشَاءُ﴾. مقداره أربع أو خمس حركات، ويصل إلى ست إذا وقفنا على الهمز المتطرف."},
+{t:"#ffd9d6",q:"ما المد المنفصل؟",a:"حرف المد آخر كلمة، وهمزة القطع أول الكلمة التالية",ex:"حكمه الجواز، مثل ﴿فِي أَرْضِ﴾. مقداره حركتان أو أربع أو خمس، والمقدَّم في الأداء التوسط."},
+{t:"#ffd9d6",q:"ما القصر والتوسط وفويق التوسط في المد المنفصل؟",a:"القصر: حركتان. التوسط: أربع. فويق التوسط: خمس",ex:"والمقدَّم في الأداء هو التوسط."},
+{t:"#ffd9d6",q:"لماذا سُمّي المتصل متصلًا والمنفصل منفصلًا؟",a:"المتصل: لاتصال السبب (الهمز) بالشرط (حرف المد) في كلمة واحدة. المنفصل: لانفصالهما في كلمتين",ex:"مثل ﴿جَاءَكُمْ﴾ للمتصل، و﴿فِي أَرْضِ﴾ للمنفصل."},
+{t:"#ffd9d6",q:"ما الفرق بين الانفصال الحقيقي والحكمي؟",a:"الحقيقي: حرف المد ثابت في الرسم واللفظ. الحكمي: محذوف في الرسم ثابت في اللفظ",ex:"الحقيقي يجوز الوقف على حرف المد فيه، مثل ﴿فِي أَرْضِ﴾. الحكمي لا يجوز الوقف عليه، مثل «يا» في ﴿يَا أَيُّهَا﴾."},
+{t:"#f3d3f0",q:"ما مد الصلة الكبرى؟",a:"مد يلحق بالمنفصل، سببه هاء ضمير الغائب المذكر بين متحركين وبعدها همزة قطع",ex:"يكون بالواو أو الياء فقط، مثل ﴿بِعِبَادَةِ رَبِّهِ أَحَدًا﴾، ويُكتب في المصحف واو صغيرة أو ياء صغيرة عليها علامة المد."},
+{t:"#f3d3f0",q:"ما مد البدل؟",a:"همز يتقدم على حرف المد، ولا يليه همز ولا سكون",ex:"حكمه الجواز، مثل ﴿آدَمَ﴾ ﴿آمَنَ﴾ ﴿أَنْبِئُونِي﴾. مقداره حركتان عند جميع القراء، وعند ورش حركتان أو أربع أو ست."},
+{t:"#f3d3f0",q:"لماذا سُمّي مد البدل بهذا الاسم؟",a:"لأن حرف المد فيه مبدل من الهمز غالبًا، وليس دائمًا",ex:"﴿آدَمَ﴾ أصلها «أأدم»، فأُبدلت الهمزة الثانية حرف مد من جنس حركة الأولى تخفيفًا. أما ﴿إِسْرَائِيلَ﴾ فليست مبدلة، وتسمى شبيه البدل."},
+{t:"#fbd0dc",q:"ما المد العارض للسكون؟",a:"حرف مد بعده حرف سكن للوقف عليه",ex:"حكمه الجواز، مثل ﴿نَسْتَعِينُ﴾ ﴿الْحِسَابِ﴾. مقداره حركتان (قصر) أو أربع (توسط) أو ست (إشباع)، وهو وصلًا مد طبيعي."},
+{t:"#fbd0dc",q:"إذا اجتمع مد البدل والمد العارض للسكون عند الوقف، فأيهما يُعمل به؟",a:"المد العارض للسكون، لأنه أقوى من مد البدل",ex:"مثل ﴿الْخَاطِئِينَ﴾ ﴿مُسْتَهْزِئُونَ﴾: وصلًا مد بدل حركتان، ووقفًا يُهمل البدل ويؤخذ بالعارض حركتين أو أربع أو ست."},
+{t:"#fbd0dc",q:"ما المد اللازم؟",a:"مد فرعي سببه السكون اللازم",ex:"اتفق العلماء على مده زيادة على المد الطبيعي وعلى لزومه حالة واحدة، ومقداره ست حركات."}
+];
+const $=s=>document.getElementById(s);
+const n=x=>x.toLocaleString('ar-EG');
+const card=$('card'),stage=$('stage');
+const ENDPOINT="";/* ألصقي هنا رابط Google Apps Script بين علامتي الاقتباس */
+const DECK="المد والقصر";
+let who={},t_start=0,first=true,rid="",last=null;
+let queue=[],known=0,again=[],total=0,dx=0,sx=null,moved=false,busy=false,t0=0;
+
+function start(list){queue=list.slice();known=0;again=[];total=queue.length;$('end').hidden=true;stage.hidden=false;$('btns').hidden=false;show(false);}
+function show(anim=true){
+  if(!queue.length){finish();return;}
+  const c=D[queue[0]];
+  card.classList.add('reset');
+  card.classList.remove('flipped','fly','drag');
+  card.style.transform='';card.style.opacity='';
+  card.style.setProperty('--tint',c.t);
+  $('q').textContent=c.q;$('a').textContent=c.a;$('ex').textContent=c.ex;
+  $('bok').style.opacity=0;$('bno').style.opacity=0;stage.style.setProperty('--p',0);
+  $('wash').style.opacity=0;void card.offsetWidth;card.classList.remove('reset');
+  if(anim&&!matchMedia('(prefers-reduced-motion:reduce)').matches)card.animate([{opacity:.4},{opacity:1}],{duration:160});
+  const done=total-queue.length;
+  $('bar').style.width=(done/total*100)+'%';
+  $('count').textContent='بطاقة '+n(done+1)+' من '+n(total);
+  busy=false;
+}
+function flip(){card.classList.toggle('flipped');}
+function decide(ok){
+  if(busy||!queue.length)return;busy=true;
+  const i=queue.shift();
+  if(ok)known++;else again.push(i);
+  card.classList.remove('drag');card.classList.add('fly');wash(ok?200:-200);
+  const dir=ok?1:-1;
+  card.style.transform='translate3d('+dir*window.innerWidth+'px,0,0) rotate('+dir*10+'deg)';
+  card.style.opacity='0';
+  stage.style.setProperty('--p',1);
+  setTimeout(show,200);
+}
+function wash(x){const w=$('wash');w.style.background=x>0?'var(--gx)':'var(--rx)';w.textContent=x>0?'✓ عرفتها':'✕ أعيدها';w.style.justifyContent=x>0?'flex-start':'flex-end';w.style.opacity=Math.min(Math.abs(x)/50,1);}
+function finish(){
+  if(first){first=false;report();}
+  stage.hidden=true;$('btns').hidden=true;$('end').hidden=false;
+  $('bar').style.width='100%';$('count').textContent='';
+  $('sum').textContent=again.length?'بارك الله فيك. يمكنك مراجعة البطاقات التي أعدتها.':'بارك الله فيك.';
+  $('rv').hidden=!again.length;
+}
+card.addEventListener('pointerdown',e=>{if(busy)return;sx=e.clientX;dx=0;moved=false;t0=performance.now();card.setPointerCapture(e.pointerId);card.classList.add('drag');});
+card.addEventListener('pointermove',e=>{
+  if(sx===null)return;dx=e.clientX-sx;if(Math.abs(dx)>6)moved=true;
+  const p=Math.min(Math.abs(dx)/120,1);
+  card.style.transform='translate3d('+dx+'px,0,0) rotate('+(dx/30)+'deg)';
+  $('bok').style.opacity=Math.min(Math.max(dx,0)/90,1);
+  $('bno').style.opacity=Math.min(Math.max(-dx,0)/90,1);
+  stage.style.setProperty('--p',p);wash(dx);
+});
+function release(){
+  if(sx===null)return;sx=null;card.classList.remove('drag');
+  const v=Math.abs(dx)/Math.max(performance.now()-t0,1);
+  if(Math.abs(dx)>70||(Math.abs(dx)>25&&v>0.3)){decide(dx>0);}
+  else{card.style.transform='';$('bok').style.opacity=0;$('bno').style.opacity=0;stage.style.setProperty('--p',0);if(!moved)flip();$('wash').style.opacity=0;}
+}
+card.addEventListener('pointerup',release);
+card.addEventListener('pointercancel',release);
+card.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')decide(true);
+  else if(e.key==='ArrowLeft')decide(false);
+  else if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();}
+});
+$('bk').onclick=()=>decide(true);
+$('bn').onclick=()=>decide(false);
+$('bf').onclick=flip;
+$('rv').onclick=()=>start(again);
+function send(p,tries){
+  if(!ENDPOINT)return;
+  fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})
+    .catch(()=>{if(tries>1)setTimeout(()=>send(p,tries-1),3000);});
+}
+function report(){
+  const secs=Math.round((Date.now()-t_start)/1000);
+  send({id:rid,date:new Date().toLocaleString('ar-EG'),name:who.nm,teacher:who.tc,deck:DECK,known,total,pct:Math.round(known/total*100),secs,missed:again.map(i=>i+1).join('، ')},3);
+}
+function newAttempt(){
+  rid='M'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+  t_start=Date.now();first=true;last=null;start(D.map((_,i)=>i));
+}
+$('rs').onclick=newAttempt;
+$('go').onclick=()=>{
+  const nm=$('nm').value.trim(),tc=$('tc').value.trim();
+  if(!nm||!tc){$('err').textContent='اكتب الاسم واسم المعلمة أولًا.';return;}
+  who={nm,tc};$('start').hidden=true;$('game').hidden=false;newAttempt();
+};
+</script>
+</body>
+</html>
