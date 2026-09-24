@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>مراجعة أحكام المد والقصر</title>
+<style>
+  :root{
+    --bg:#fdf3f6;
+    --bg-2:#fbe9f0;
+    --card-bg:#ffffff;
+    --card-border:#f3c9db;
+    --text:#4a3540;
+    --text-soft:#8a6f7a;
+    --accent:#e88fae;
+    --accent-2:#d874a0;
+    --green:#59b98a;
+    --green-bg:#c9f0dc;
+    --red:#e2707a;
+    --red-bg:#f8d3d6;
+    --shadow: 0 10px 30px rgba(216,116,160,0.18);
+    --radius: 22px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#241b21;
+      --bg-2:#2c2129;
+      --card-bg:#332631;
+      --card-border:#5a3c4c;
+      --text:#f3e4ec;
+      --text-soft:#c8a8b8;
+      --accent:#e79bb8;
+      --accent-2:#f0aecb;
+      --green:#7bd6a8;
+      --green-bg:#234a37;
+      --red:#f0949c;
+      --red-bg:#4a2528;
+      --shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    height:100%;
+    margin:0;
+    background:linear-gradient(180deg,var(--bg),var(--bg-2));
+    color:var(--text);
+    font-family: 'Geeza Pro','Damascus','Al Bayan','Segoe UI',Tahoma,Arial,sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100dvh;
+    padding:20px 18px 28px;
+    display:flex;
+    flex-direction:column;
+  }
+  .brand{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .brand h1{
+    font-size:1.35rem;
+    margin:0 0 4px;
+    color:var(--accent-2);
+  }
+  .brand p{
+    margin:0;
+    color:var(--text-soft);
+    font-size:0.92rem;
+  }
+  .screen{
+    display:none;
+    flex-direction:column;
+    flex:1;
+    animation: fadeIn 0.25s ease;
+  }
+  .screen.active{ display:flex; }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+
+  /* ---- start screen ---- */
+  .start-box{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:26px 22px;
+    box-shadow:var(--shadow);
+    margin-top:12px;
+  }
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block;
+    font-size:0.88rem;
+    color:var(--text-soft);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:14px;
+    border:1.5px solid var(--card-border);
+    background:transparent;
+    color:var(--text);
+    font-size:1rem;
+    font-family:inherit;
+  }
+  .field input:focus{
+    outline:none;
+    border-color:var(--accent);
+  }
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:16px;
+    padding:14px 18px;
+    font-size:1rem;
+    font-family:inherit;
+    font-weight:600;
+    cursor:pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .btn-primary{
+    width:100%;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;
+  }
+  .btn-secondary{
+    background:var(--card-bg);
+    color:var(--text);
+    border:1.5px solid var(--card-border);
+  }
+
+  /* ---- top bar ---- */
+  .topbar{ margin-bottom:14px; }
+  .progress-wrap{
+    height:8px;
+    background:var(--card-border);
+    border-radius:99px;
+    overflow:hidden;
+  }
+  .progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    transition: width 0.25s ease;
+    border-radius:99px;
+  }
+  .counter{
+    text-align:center;
+    margin-top:8px;
+    font-size:0.9rem;
+    color:var(--text-soft);
+  }
+
+  /* ---- stage / card ---- */
+  .stage{
+    position:relative;
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:340px;
+    perspective:1200px;
+    touch-action:pan-y;
+  }
+  .overlay{
+    position:absolute;
+    top:14px;
+    padding:8px 16px;
+    border-radius:12px;
+    font-weight:700;
+    font-size:0.95rem;
+    opacity:0;
+    pointer-events:none;
+    z-index:3;
+  }
+  .overlay-right{
+    right:14px;
+    background:var(--green-bg);
+    color:var(--green);
+    transform:rotate(-6deg);
+  }
+  .overlay-left{
+    left:14px;
+    background:var(--red-bg);
+    color:var(--red);
+    transform:rotate(6deg);
+  }
+  .card{
+    position:relative;
+    width:100%;
+    max-width:360px;
+    height:320px;
+    cursor:grab;
+    z-index:2;
+    user-select:none;
+    touch-action:none;
+  }
+  .card:active{ cursor:grabbing; }
+  .card-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition: transform 0.3s;
+    transform-style: preserve-3d;
+  }
+  .card-inner.flipped{ transform: rotateY(180deg); }
+  .card-face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    border-radius:var(--radius);
+    border:1.5px solid var(--card-border);
+    background:var(--card-bg);
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:26px;
+    font-size:1.12rem;
+    line-height:1.7;
+    overflow-y:auto;
+  }
+  .card-front{ color:var(--text); }
+  .card-back{
+    transform: rotateY(180deg);
+    color:var(--text);
+    background: var(--bg-2);
+  }
+  .card-face .tag{
+    position:absolute;
+    top:14px;
+    right:16px;
+    font-size:0.75rem;
+    color:var(--text-soft);
+    font-weight:600;
+  }
+
+  /* ---- controls ---- */
+  .controls{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+  }
+  .controls .btn{ flex:1; }
+  .hint{
+    text-align:center;
+    color:var(--text-soft);
+    font-size:0.8rem;
+    margin:12px 0 0;
+  }
+
+  /* ---- end screen ---- */
+  .end-box{
+    margin:auto 0;
+    text-align:center;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:34px 22px;
+    box-shadow:var(--shadow);
+  }
+  .end-box h2{ margin:0 0 10px; color:var(--accent-2); }
+  .end-box p{ color:var(--text-soft); margin:0 0 22px; }
+  .end-actions{ display:flex; flex-direction:column; gap:10px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .card-inner, .card, .progress-bar, .screen{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="brand">
+    <h1>مراجعة أحكام المد والقصر</h1>
+    <p>بطاقات تفاعلية للمراجعة والحفظ</p>
+  </div>
+
+  <!-- شاشة البداية -->
+  <section class="screen active" id="screen-start">
+    <div class="start-box">
+      <div class="field">
+        <label for="inputName">اسم الطالبة</label>
+        <input type="text" id="inputName" placeholder="اكتبي اسمك هنا" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="inputTeacher">اسم المعلمة</label>
+        <input type="text" id="inputTeacher" placeholder="اكتبي اسم المعلمة" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="btnStart" disabled>ابدئي الجولة</button>
+    </div>
+  </section>
+
+  <!-- شاشة البطاقات -->
+  <section class="screen" id="screen-cards">
+    <div class="topbar">
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="counter" id="counter">بطاقة ١ من ٥٠</div>
+    </div>
+
+    <div class="stage">
+      <div class="overlay overlay-right" id="overlayRight">✓ عرفتها</div>
+      <div class="overlay overlay-left" id="overlayLeft">✕ أعيدها</div>
+      <div class="card" id="card" tabindex="0" role="button" aria-label="بطاقة مراجعة، اضغطي للقلب">
+        <div class="card-inner" id="cardInner">
+          <div class="card-face card-front">
+            <span class="tag">سؤال</span>
+            <span id="cardFront"></span>
+          </div>
+          <div class="card-face card-back">
+            <span class="tag">جواب</span>
+            <span id="cardBack"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" id="btnAgain">أعيدها</button>
+      <button class="btn btn-secondary" id="btnFlip">اقلب</button>
+      <button class="btn btn-secondary" id="btnKnow">عرفتها</button>
+    </div>
+    <p class="hint">اسحبي البطاقة يمينًا أو يسارًا، أو استخدمي الأسهم، والمسافة أو Enter للقلب</p>
+  </section>
+
+  <!-- شاشة النهاية -->
+  <section class="screen" id="screen-end">
+    <div class="end-box">
+      <h2>انتهت الجولة 🎉</h2>
+      <p id="endMsg">أحسنتِ! أرسلنا نتيجتك لمعلمتك.</p>
+      <div class="end-actions">
+        <button class="btn btn-primary" id="btnReviewMissed">مراجعة البطاقات المُعادة فقط</button>
+        <button class="btn btn-secondary" id="btnRestart">البدء من جديد</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ ضعي رابط Google Apps Script هنا ============ */
+  var GAS_URL = "https://script.google.com/macros/s/AKfycbxdZzuCkoGf_7MNfBLXxG2fFD6DyHEHqqpTqUowb7ghvwA6vaXCryFSMd87um62eTn_Sw/exec";
+  /* =========================================================== */
+
+  var CARDS = [
+    {q:"ما معنى المد لغةً؟", a:"الزيادة، ومنه قوله تعالى: «ويمددكم بأموال وبنين» أي: يزدكم."},
+    {q:"ما تعريف المد اصطلاحًا؟", a:"إطالة الصوت بحرف المد أو اللين عند وجود سبب من أسباب المد."},
+    {q:"ما معنى القصر لغةً؟", a:"الحبس والمنع، كما في قوله تعالى: «حورٌ مقصوراتٌ في الخيام» أي: محبوسات فيها."},
+    {q:"ما تعريف القصر اصطلاحًا؟", a:"إثبات حرف المد واللين بمقدار حركتين فقط، وهو زمن المد الطبيعي."},
+    {q:"ما حروف المد الثلاثة؟", a:"الألف، والواو، والياء."},
+    {q:"لماذا تُسمى حروف المد أيضًا حروف اللين؟", a:"لأنها تمتد بها الصوت فتُسمى حروف مد، وتخرج بسهولة ويسر فتُسمى حروف لين."},
+    {q:"ما شرط مدّية حرف الألف؟", a:"أن يكون ما قبلها مفتوحًا. مثال: ناصية."},
+    {q:"ما شرط مدّية حرف الواو؟", a:"أن يكون ما قبلها مضمومًا. مثال: يوصيكم."},
+    {q:"ما شرط مدّية حرف الياء؟", a:"أن يكون ما قبلها مكسورًا. مثال: بيمينه."},
+    {q:"متى يكون الواو أو الياء حرف لين لا حرف مد؟", a:"إذا تحرك ما قبلهما بالفتح، فحينئذ يكونان حرفي لين لا حرفي مد."},
+    {q:"إلى كم قسم رئيسي ينقسم المد؟", a:"إلى قسمين: المد الأصلي (الطبيعي)، والمد الفرعي."},
+    {q:"ما تعريف المد الطبيعي (الأصلي)؟", a:"المد الذي لا تقوم ذات الحرف إلا به، ولا يستقيم معنى الكلمة إلا به، ولا يسبقه همز ولا يليه همز أو سكون."},
+    {q:"لماذا سُمّي المد الطبيعي «أصليًا»؟", a:"لأصالته بالنسبة لغيره من المدود، ولثبوت مقداره على حالة واحدة وهي حركتان."},
+    {q:"لماذا سُمّي المد الطبيعي «طبيعيًا»؟", a:"لأن صاحب النطق السليم لا يزيده ولا ينقصه عن حركتين بطبيعته."},
+    {q:"ما مقدار المد الطبيعي وما شرطه؟", a:"مقداره حركتان لا يزيد ولا ينقص، بشرط ألا يقع قبله همز، ولا يقع بعده همز أو سكون."},
+    {q:"ما حكم المد الطبيعي؟", a:"الوجوب؛ إذ اتفق العلماء على وجوب مده بمقدار حركتين."},
+    {q:"ما النوع الأول من أنواع المد الطبيعي؟", a:"أن يكون حرف المد ثابتًا وصلًا ووقفًا. مثال: ناصية، يوصيكم."},
+    {q:"ما النوع الثاني من المد الطبيعي، ومنه مد العِوَض؟", a:"أن يثبت حرف المد وقفًا فقط دون الوصل، كالألف المبدلة من التنوين المنصوب. مثال: سديدًا، حكيمًا، ويسمى مد العِوَض."},
+    {q:"ما مثال الألفات ذات السكون المستطيل ضمن النوع الثاني؟", a:"مثل: الظنونا، قواريرا، حيث تثبت الألف وقفًا فقط."},
+    {q:"ما مثال المدود التي تُحذف وصلًا لالتقاء الساكنين وتثبت وقفًا؟", a:"مثل: «ما في الأرض»، يُحذف حرف المد عند الوصل تفاديًا لالتقاء ساكنين، ويثبت عند الوقف."},
+    {q:"ما النوع الثالث من المد الطبيعي، ومنه مد الصلة الصغرى؟", a:"أن يثبت حرف المد وصلًا فقط دون الوقف، كصلة هاء الضمير. مثال: «إن ربه كان به بصيرًا»، ويسمى مد الصلة الصغرى."},
+    {q:"كيف يتحول المد الطبيعي إلى مد عارض للسكون؟", a:"إذا كانت الكلمة تنتهي بحرف مد طبيعي وصلًا، فعند الوقف يسكن الحرف الأخير سكونًا عارضًا فيصير المد عارضًا للسكون. مثال: العالمين، الميزان."},
+    {q:"ما تعريف المد الفرعي؟", a:"زيادة مقدار المد على مقدار المد الطبيعي بسبب الهمز أو السكون، مع قيام ذات الحرف بدونه."},
+    {q:"كيف تُرسم علامة المد الفرعي في المصحف؟", a:"تُرسم فوق حرف المد علامة المد ( ~ )."},
+    {q:"ما السببان اللفظيان للمد الفرعي؟", a:"الهمز (قبل حرف المد أو بعده)، والسكون."},
+    {q:"ما السبب المعنوي للمد الفرعي؟", a:"قصد المبالغة في النفي أو التعظيم، كما في مد ألف «لا» من كلمة التوحيد."},
+    {q:"ما أقسام المد الفرعي بسبب الهمز؟", a:"المد المتصل، والمد المنفصل (ويلحق به مد الصلة الكبرى)، ومد البدل."},
+    {q:"ما أقسام المد الفرعي بسبب السكون؟", a:"المد العارض للسكون (ويلحق به مد اللين)، والمد اللازم."},
+    {q:"ما الأحكام الثلاثة للمد الفرعي؟", a:"الوجوب خاص بالمتصل، والجواز خاص بالمنفصل والعارض للسكون والبدل، واللزوم خاص باللازم."},
+    {q:"ما تعريف المد الواجب المتصل؟", a:"أن يقع بعد حرف المد همزٌ متصل به في كلمة واحدة. مثال: جاءكم، يشاء."},
+    {q:"لماذا سُمّي المد المتصل «متصلًا»؟", a:"لاتصال سببه (الهمز) بشرطه (حرف المد) في كلمة واحدة."},
+    {q:"ما مقدار المد المتصل؟", a:"أربع أو خمس حركات إن كان الهمز متوسطًا أو متطرفًا موصولًا، ويصل إلى ست حركات إذا وُقف عليه وهو متطرف."},
+    {q:"ما تعريف المد الجائز المنفصل؟", a:"أن يقع حرف المد في آخر الكلمة الأولى، وهمزة قطع في أول الكلمة التالية. مثال: «في أرض»."},
+    {q:"ما حكم المد المنفصل ومقداره؟", a:"حكمه الجواز، ومقداره حركتان (قصر) أو أربع (توسط) أو خمس حركات، والمقدَّم في الأداء هو التوسط."},
+    {q:"ما الفرق بين الانفصال الحقيقي والانفصال الحكمي؟", a:"الحقيقي: يكون حرف المد ثابتًا في الرسم واللفظ ويجوز الوقف عليه. الحكمي: يكون محذوفًا في الرسم ثابتًا في اللفظ ولا يجوز الوقف عليه. مثال: يا أيها."},
+    {q:"ما تعريف مد الصلة الكبرى؟", a:"مد يلحق بالمنفصل، يقع عند مجيء هاء ضمير متحركة زائدة بين متحركين يليها همزة قطع، مع الواو أو الياء فقط."},
+    {q:"ما تعريف مد البدل، وحكمه ومقداره؟", a:"أن يتقدم الهمز على حرف المد ولا يقع بعده همز أو سكون. حكمه الجواز، ومقداره حركتان عند جمهور القراء."},
+    {q:"لماذا سُمّي «مد البدل»؟", a:"لأن حرف المد فيه مبدل غالبًا من همزة ساكنة. مثال: آدم، أصلها أأدم، أُبدلت الهمزة الساكنة ألفًا موافقة لحركة الهمزة الأولى."},
+    {q:"ما الفرق بين مد البدل الحقيقي والمد الشبيه بالبدل؟", a:"في البدل الحقيقي يكون حرف المد بدلًا فعليًا عن همزة ساكنة. أما الشبيه بالبدل فحرف المد فيه أصلي وليس بدلًا عن همزة، لكنه وقع بعد همزة. مثال: مستهزئون، الخاطئين."},
+    {q:"ما تعريف المد العارض للسكون؟", a:"أن يقع بعد حرف المد حرفٌ يسكن سكونًا عارضًا بسبب الوقف عليه. مثال: نستعين عند الوقف."},
+    {q:"ما حكم المد العارض للسكون ومقداره، وما تعليل أوجهه؟", a:"حكمه الجواز، ومقداره حركتان (نظرًا لأصله الطبيعي) أو أربع (توسطًا) أو ست حركات (لشبهه بالمد اللازم)."},
+    {q:"ما تعريف مد اللين؟", a:"أن يأتي بعد حرف اللين (الواو أو الياء الساكنتين بعد فتح) حرفٌ في آخر الكلمة يسكن سكونًا عارضًا للوقف. مثال: خوف، قريش."},
+    {q:"ما ضوابط مد اللين ومقداره؟", a:"أن يكون حرف اللين قبل الحرف الأخير مباشرة، وأن يسكن الحرف الأخير للوقف. ومقداره حركتان أو أربع أو ست حركات، وقفًا لا وصلًا."},
+    {q:"ما تعريف المد اللازم، ولماذا سُمّي كذلك؟", a:"أن يأتي بعد حرف المد أو اللين حرفٌ ساكن سكونًا أصليًا وصلًا ووقفًا. سُمّي لازمًا للزوم مده ست حركات ولزوم سببه في كل الأحوال."},
+    {q:"ما قسما المد اللازم؟", a:"اللازم الكلمي (إذا كان السكون في كلمة)، واللازم الحرفي (إذا كان السكون في حرف من حروف فواتح السور)."},
+    {q:"ما تعريف اللازم الكلمي المثقل؟", a:"أن يأتي بعد حرف المد حرفٌ ساكن في كلمة واحدة ومُدغم فيما بعده (مشدد). مثال: الحاقة. ومقداره ست حركات."},
+    {q:"ما تعريف اللازم الكلمي المخفف؟", a:"أن يأتي بعد حرف المد حرفٌ ساكن في كلمة واحدة مُظهر غير مدغم، ولم يرد في القرآن إلا في كلمة «آلآن». ومقداره ست حركات."},
+    {q:"ما أقسام اللازم الحرفي الثلاثة؟", a:"المثقل (إذا أُدغم الحرف الساكن فيما بعده، كاللام في «الم»)، والمخفف (إذا أُظهر، كالميم في «الم»)، والشبيه بالمثقل (إذا أُخفي، كالسين في «عسق»). ومقدارها جميعًا ست حركات."},
+    {q:"ما قاعدة التسوية بين المدين من نوع واحد؟", a:"إذا اجتمع مدان من نوع واحد في القراءة نفسها (كعارضين أو متصلين)، وجبت التسوية بينهما في المقدار، فلا يُمد أحدهما أطول من الآخر."},
+    {q:"ما قاعدة «أقوى السببين» عند اجتماع أكثر من سبب للمد على حرف واحد؟", a:"يُؤخذ بالسبب الأقوى ويُلغى الأضعف، وترتيب القوة: اللازم، فالمتصل، فالعارض للسكون، فالمنفصل، فالبدل."}
+  ];
+
+  var TOTAL = CARDS.length;
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var els = {
+    start:      document.getElementById('screen-start'),
+    cardsScr:   document.getElementById('screen-cards'),
+    endScr:     document.getElementById('screen-end'),
+    inputName:  document.getElementById('inputName'),
+    inputTeacher: document.getElementById('inputTeacher'),
+    btnStart:   document.getElementById('btnStart'),
+    progressBar:document.getElementById('progressBar'),
+    counter:    document.getElementById('counter'),
+    overlayR:   document.getElementById('overlayRight'),
+    overlayL:   document.getElementById('overlayLeft'),
+    card:       document.getElementById('card'),
+    cardInner:  document.getElementById('cardInner'),
+    cardFront:  document.getElementById('cardFront'),
+    cardBack:   document.getElementById('cardBack'),
+    btnAgain:   document.getElementById('btnAgain'),
+    btnFlip:    document.getElementById('btnFlip'),
+    btnKnow:    document.getElementById('btnKnow'),
+    endMsg:     document.getElementById('endMsg'),
+    btnReviewMissed: document.getElementById('btnReviewMissed'),
+    btnRestart: document.getElementById('btnRestart')
+  };
+
+  var student = { name:"", teacher:"" };
+
+  var session = {
+    order: [],       // original card indices for this round
+    pos: 0,
+    missed: [],
+    knownCount: 0,
+    isFirstFull: false,
+    startTime: 0,
+    isAnimating: false,
+    flipped: false
+  };
+
+  var drag = { active:false, moved:false, startX:0, startY:0, dx:0, startTime:0 };
+
+  function arNum(n){
+    var d = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    return String(n).replace(/[0-9]/g, function(c){ return d[c]; });
+  }
+
+  function showScreen(name){
+    [els.start, els.cardsScr, els.endScr].forEach(function(s){ s.classList.remove('active'); });
+    if(name==='start') els.start.classList.add('active');
+    if(name==='cards') els.cardsScr.classList.add('active');
+    if(name==='end') els.endScr.classList.add('active');
+  }
+
+  function checkStartReady(){
+    els.btnStart.disabled = !(els.inputName.value.trim() && els.inputTeacher.value.trim());
+  }
+  els.inputName.addEventListener('input', checkStartReady);
+  els.inputTeacher.addEventListener('input', checkStartReady);
+
+  els.btnStart.addEventListener('click', function(){
+    student.name = els.inputName.value.trim();
+    student.teacher = els.inputTeacher.value.trim();
+    var order = [];
+    for(var i=0;i<TOTAL;i++) order.push(i);
+    startRound(order, true);
+  });
+
+  function startRound(indices, isFirstFull){
+    session.order = indices;
+    session.pos = 0;
+    session.missed = [];
+    session.knownCount = 0;
+    session.isFirstFull = isFirstFull;
+    session.startTime = Date.now();
+    showScreen('cards');
+    renderCard();
+  }
+
+  function currentCardIndex(){
+    return session.order[session.pos];
+  }
+
+  function renderCard(){
+    var idx = currentCardIndex();
+    var c = CARDS[idx];
+    els.cardFront.textContent = c.q;
+    els.cardBack.textContent = c.a;
+    session.flipped = false;
+    els.cardInner.classList.remove('flipped');
+    els.card.style.transition = 'none';
+    els.card.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+    els.overlayR.style.opacity = 0;
+    els.overlayL.style.opacity = 0;
+    // force reflow so next transform change animates cleanly
+    void els.card.offsetWidth;
+    els.card.style.transition = '';
+
+    var total = session.order.length;
+    els.progressBar.style.width = (session.pos/total*100) + '%';
+    els.counter.textContent = 'بطاقة ' + arNum(session.pos+1) + ' من ' + arNum(total);
+    session.isAnimating = false;
+  }
+
+  function toggleFlip(){
+    if(session.isAnimating) return;
+    session.flipped = !session.flipped;
+    els.cardInner.classList.toggle('flipped', session.flipped);
+  }
+
+  function resolveSwipe(direction){
+    // direction: 1 = يمين/عرفتها , -1 = يسار/أعيدها
+    var idx = currentCardIndex();
+    if(direction > 0){
+      session.knownCount++;
+    } else {
+      session.missed.push(idx);
+    }
+    session.pos++;
+    if(session.pos >= session.order.length){
+      endRound();
+    } else {
+      renderCard();
+    }
+  }
+
+  function animateOut(direction, fromDrag){
+    if(session.isAnimating) return;
+    session.isAnimating = true;
+    var dur = prefersReduced ? 0 : 200;
+    els.card.style.transition = prefersReduced ? 'none' : 'transform 0.2s ease-out';
+    var flyX = direction * (window.innerWidth + 200);
+    var rot = direction * 24;
+    els.card.style.transform = 'translate3d(' + flyX + 'px,0,0) rotate(' + rot + 'deg)';
+    if(direction > 0){ els.overlayR.style.opacity = 1; els.overlayL.style.opacity = 0; }
+    else { els.overlayL.style.opacity = 1; els.overlayR.style.opacity = 0; }
+    setTimeout(function(){
+      resolveSwipe(direction);
+    }, dur);
+  }
+
+  function springBack(){
+    els.card.style.transition = prefersReduced ? 'none' : 'transform 0.2s ease-out';
+    els.card.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+    els.overlayR.style.opacity = 0;
+    els.overlayL.style.opacity = 0;
+  }
+
+  /* ---------- Pointer drag ---------- */
+  els.card.addEventListener('pointerdown', function(e){
+    if(session.isAnimating) return;
+    drag.active = true;
+    drag.moved = false;
+    drag.startX = e.clientX;
+    drag.startY = e.clientY;
+    drag.dx = 0;
+    drag.startTime = performance.now();
+    els.card.setPointerCapture(e.pointerId);
+    els.card.style.transition = 'none';
+  });
+
+  els.card.addEventListener('pointermove', function(e){
+    if(!drag.active) return;
+    var dx = e.clientX - drag.startX;
+    var dy = e.clientY - drag.startY;
+    if(Math.abs(dx) > 5) drag.moved = true;
+    drag.dx = dx;
+    var rot = dx / 30;
+    els.card.style.transform = 'translate3d(' + dx + 'px,' + (dy*0.12) + 'px,0) rotate(' + rot + 'deg)';
+    var op = Math.min(Math.abs(dx)/50, 1);
+    if(dx > 0){ els.overlayR.style.opacity = op; els.overlayL.style.opacity = 0; }
+    else { els.overlayL.style.opacity = op; els.overlayR.style.opacity = 0; }
+  });
+
+  function endDrag(e){
+    if(!drag.active) return;
+    drag.active = false;
+    var dt = Math.max(1, performance.now() - drag.startTime);
+    var velocity = drag.dx / dt; // px/ms
+    var dx = drag.dx;
+    var fastFlick = Math.abs(dx) > 25 && Math.abs(velocity) > 0.5;
+    if(Math.abs(dx) > 70 || fastFlick){
+      animateOut(dx > 0 ? 1 : -1, true);
+    } else {
+      springBack();
+      if(!drag.moved){
+        toggleFlip();
+      }
+    }
+  }
+  els.card.addEventListener('pointerup', endDrag);
+  els.card.addEventListener('pointercancel', function(){
+    drag.active = false;
+    springBack();
+  });
+
+  /* ---------- Buttons ---------- */
+  els.btnFlip.addEventListener('click', toggleFlip);
+  els.btnKnow.addEventListener('click', function(){ if(!session.isAnimating) animateOut(1,false); });
+  els.btnAgain.addEventListener('click', function(){ if(!session.isAnimating) animateOut(-1,false); });
+
+  /* ---------- Keyboard ---------- */
+  document.addEventListener('keydown', function(e){
+    if(!els.cardsScr.classList.contains('active')) return;
+    if(session.isAnimating) return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); animateOut(1,false); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); animateOut(-1,false); }
+    else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggleFlip(); }
+  });
+
+  /* ---------- End of round ---------- */
+  function endRound(){
+    if(session.isFirstFull){
+      var timeSeconds = Math.round((Date.now() - session.startTime)/1000);
+      var percentage = Math.round((session.knownCount / TOTAL) * 100);
+      var result = {
+        participant_id: Date.now().toString(36) + '-' + Math.floor(Math.random()*10000).toString(36),
+        name: student.name,
+        teacher: student.teacher,
+        known_count: session.knownCount,
+        percentage: percentage,
+        time_seconds: timeSeconds,
+        missed_card_numbers: session.missed.map(function(i){ return i+1; })
+      };
+      sendResults(result);
+    }
+    // خزّني آخر قائمة معادة كي تستخدمها شاشة النهاية
+    session.lastMissed = session.missed.slice();
+    els.btnReviewMissed.style.display = session.lastMissed.length ? '' : 'none';
+    showScreen('end');
+  }
+
+  function sendResults(result){
+    if(!GAS_URL || GAS_URL.indexOf('PASTE_YOUR') === 0) return;
+    try{
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(result)
+      }).catch(function(){});
+    }catch(err){}
+  }
+
+  els.btnReviewMissed.addEventListener('click', function(){
+    if(!session.lastMissed || !session.lastMissed.length) return;
+    startRound(session.lastMissed.slice(), false);
+  });
+
+  els.btnRestart.addEventListener('click', function(){
+    var order = [];
+    for(var i=0;i<TOTAL;i++) order.push(i);
+    startRound(order, true);
+  });
+
+})();
+</script>
+</body>
+</html>
